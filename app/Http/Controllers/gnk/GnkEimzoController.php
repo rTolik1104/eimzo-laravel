@@ -72,4 +72,31 @@ class GnkEimzoController extends Controller
         }
         return AppResponseService::error('Document id not found',0,404);
     }
+
+    public function getSignList()
+    {
+        if(!isset(request()->document_id)){
+            return AppResponseService::error('Page not found',3119,404);
+        }
+
+        $signatures = EimzoAppSignature::where('document_id',request()->document_id);
+
+        $data = array();
+        if($signatures != null){
+            foreach ($signatures as $signature)
+            {
+                $signData = [
+                    'document_id' => $signature->document_id ?? '',
+                    'signature_pkcs7' => $signature->signature_pkcs7 ?? '',
+                    'signature_data' => json_decode($signature->signature_data ?? [],true)
+                ];
+
+                $data[] = $signData;
+            }
+
+            $out = array_values($data);
+            return AppResponseService::success('success', json_encode($data));
+        }
+        return AppResponseService::error('Document id not found',0,404);
+    }
 }
